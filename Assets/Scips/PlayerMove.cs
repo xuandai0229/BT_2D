@@ -1,64 +1,111 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PlayerMove : MonoBehaviour
 {
+    public enum AminState
+    {
+        Idle = 0,
+        Run = 1,
+        Jump = 2,
+        Fall = 3,
+    }
+
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _jumpForce = 5f;
 
-    public Transform _groundCheck;
-    [SerializeField] float _groundCheckRadius = 0.15f;
-    public LayerMask groundLayer;
-
-    private Rigidbody2D rb;
-    private Animator ani;
-    private SpriteRenderer spriteRenderer;
-     
-    private float moveInput;
-    public bool isGrounded;
+    [SerializeField] private Transform _goroundCheck;
+    [SerializeField] private float _groundCheckDistance = 0.2f;
+    [SerializeField] private LayerMask _groundLayer;
 
 
-    private void Start()
+
+    private Rigidbody2D _rb;
+    private Animator _ani;
+
+    private AminState _state = AminState.Idle;
+
+    private float _horizontalInput;
+    private bool _isGrounded;
+    private bool _isJumping;
+
+    private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        ani = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        _ani = GetComponent<Animator>();
+        _rb = GetComponent<Rigidbody2D>();
+
+
+        _ani.SetInteger("State", (int)_state);
+
     }
-    private void Update()
+
+    void Update()
     {
-        moveInput = Input.GetAxisRaw("Horizontal");
-        
+        _horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        isGrounded = Physics2D.OverlapCircle(_groundCheck.position, _groundCheckRadius, groundLayer);
-
-        //animator
-        ani.SetBool("isRunning", moveInput != 0);
-        ani.SetBool("isGrounded", isGrounded);
-        ani.SetFloat("yVelocity", rb.linearVelocity.y);
-
-        //jump
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && _isGrounded)
         {
-            rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
-            ani.SetTrigger("Jump");
+            _isJumping = true;
         }
 
-        //flip
-        if(moveInput > 0)
-        {
-            spriteRenderer.flipX = false;
-        }else if (moveInput < 0)
-        {
-            spriteRenderer.flipX = true;
-        }
+        Filip();
+        UpdateState();
+
     }
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput * _speed, rb.linearVelocity.y);
+        _rb.linearVelocity = new Vector2(_horizontalInput * _speed, _rb.linearVelocity.y);
+
+        if (_isJumping)
+        {
+            _rb.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+            _isJumping = false;
+        }
     }
-    private void OnDrawGizmosSelected()
+
+    private void UpdateState()
     {
-        if (_groundCheck != null)
-            Gizmos.DrawWireSphere(_groundCheck.position, _groundCheckRadius);
+        if (!_isGrounded && _rb.linearVelocity.y > 0.1f)
+        {
+            _state = AminState.Jump;
+        }
+        else if (!_isGrounded && _rb.linearVelocity.y < -0.1f)
+        {
+            _state = AminState.Fall;
+        }
+        else if (Mathf.Abs(_horizontalInput) > 0.1f)
+        {
+            _state = AminState.Run;
+        }
+        else
+        {
+            _state = AminState.Idle;
+        }
+        ChengeState(_state);
+    }
+
+    private void ChengeState(AminState newState)
+    {
+        if (_state == newState)
+        {
+            return;
+        }
+
+        _state = newState;
+        _ani.SetInteger("State", (int)_state);
+    }
+
+    private void Filip()
+    {
+        if (_horizontalInput < 0f)
+        {
+            transform.localScale = new Vector2(-1f, 1f);
+        }
+        else if (_horizontalInput > 0f)
+        {
+            transform.localScale = new Vector2(1f, 1f);
+        }
     }
 }
+
