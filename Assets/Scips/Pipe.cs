@@ -2,20 +2,37 @@ using UnityEngine;
 
 public class Pipe : MonoBehaviour
 {
+    PipeController _controller;
     [SerializeField] private float _moveSpeed;
-
-    private void Update()
+    [SerializeField] float _lifeTime;
+    bool _isRelease;
+    float _spawnTime;
+    void Update()
     {
-        transform.position += new Vector3(_moveSpeed, )
+        if (Time.time > (_spawnTime + _lifeTime))
+        {
+            Deactivate();
+        }
+        transform.position += new Vector3(_moveSpeed * Time.deltaTime * -1f, 0f, 0f);
     }
-
-    public void SawnAt(Vector3 position)
+    public void SetController(PipeController controller)
     {
-
+        _controller = controller;
     }
-
-    public void SetSawnATime(float time)
+    public void SpawnAt(Vector3 position)
     {
-
+        _isRelease = false;
+        transform.position = position;
+    }
+    public void SetSpawnTime(float time)
+    {
+        _spawnTime = time;
+    }
+    public void Deactivate()
+    {
+        if (_isRelease)
+            return;
+        _isRelease = true;
+        _controller.Release(this);
     }
 }
