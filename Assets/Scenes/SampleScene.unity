@@ -8350,13 +8350,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c947cdb799a65b46aedc0b34e7be8fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  _moveSpeed: 5
-  _jumpForce: 8
-  _groundCheck: {fileID: 518593132}
+  _speed: 5
+  _jumpForce: 5
+  _groundCheck: {fileID: 0}
   _groundCheckDistance: 0.2
-  _groundLayer:
+  _grpundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
 --- !u!114 &1416158604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8371,7 +8371,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   _speed: 5
   _jumpForce: 7.81
-  _groundCheck: {fileID: 518593132}
+  _goroundCheck: {fileID: 518593132}
   _groundCheckDistance: 0.2
   _groundLayer:
     serializedVersion: 2
