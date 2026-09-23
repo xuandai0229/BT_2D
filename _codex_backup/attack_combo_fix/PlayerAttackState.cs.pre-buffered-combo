@@ -1,0 +1,91 @@
+﻿using UnityEngine;
+
+public class PlayerAttackState : PlayerStateBase
+{
+    private const int MAX_COMBO_INDEX = 4;
+    private const float COMBO_CHAIN_TIME = 1.5f;
+
+    private static readonly int AttackIndexHash =
+        Animator.StringToHash("AttackIndex");
+
+    private int _comboAttackIndex = 0;
+
+    private float _lastAttackTime;
+
+
+    public PlayerAttackState(PlayerController controller)
+        : base(controller)
+    {
+    }
+
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        _controller.StopHorizontal();
+
+        _ani.SetBool("IsRun", false);
+        _ani.SetBool("IsJump", false);
+        _ani.SetBool("IsFall", false);
+
+        _ani.SetBool("IsAttack", true);
+
+        _comboAttackIndex++;
+
+        if (Time.time > _lastAttackTime + COMBO_CHAIN_TIME || _comboAttackIndex > MAX_COMBO_INDEX)
+        {
+            _comboAttackIndex = 1;
+        }
+
+        _ani.SetInteger( AttackIndexHash,_comboAttackIndex);
+
+        if (_controller.HasMoveInput)
+        {
+            _controller.SetFacingDirection(_controller.MoveX);
+        }
+
+        _lastAttackTime = Time.time;
+    }
+
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (_controller.AnimationEvent)
+        {
+            if (_controller.HasMoveInput)
+            {
+                _stateMachine.ChangeState(_controller.RunState);
+            }
+            else
+            {
+                _stateMachine.ChangeState(_controller.IdleState);
+            }
+
+            return;
+        }
+    }
+
+
+    public override void FixedUpdate()
+    {
+        base.FixedUpdate();
+
+        _controller.StopHorizontal();
+    }
+
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        _ani.SetBool("IsAttack", false);
+
+        _ani.SetInteger(
+            AttackIndexHash,
+            0
+        );
+    }
+}

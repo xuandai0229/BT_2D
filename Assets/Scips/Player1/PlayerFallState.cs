@@ -1,9 +1,13 @@
 using UnityEngine;
 
-public class PlayerFallState : PlayerStateBase
+public class PlayerFallState : AgentStateBase
 {
-    public PlayerFallState(PlayerController controller) : base(controller)
+    private readonly PlayerController _player;
+
+    public PlayerFallState(PlayerController player)
+        : base(player)
     {
+        _player = player;
     }
 
     public override void Enter()
@@ -16,32 +20,31 @@ public class PlayerFallState : PlayerStateBase
     public override void Update()
     {
         base.Update();
-        if (_controller.HasMoveInput)
+
+        if (_player.HasMoveInput)
         {
-            _controller.SetFacingDirection(_controller.MoveX);
+            _player.SetFacingDirection(_player.MoveX);
         }
 
-        if (_controller.IsGrounded() && _rb.linearVelocity.y <= 0f)
+        if (_player.IsGrounded() && _rb.linearVelocity.y <= 0f)
         {
-          
-            if (_controller.HasMoveInput)
+            if (_player.HasMoveInput)
             {
-                _stateMachine.ChangeState(_controller.RunState);
+                _stateMachine.ChangeState(_player.RunState);
             }
             else
             {
-                
-                _stateMachine.ChangeState(_controller.IdleState);
+                _stateMachine.ChangeState(_player.IdleState);
             }
 
             return;
         }
-
     }
+
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        _rb.linearVelocity = new Vector2(_controller .MoveX * _controller.RunSpeed, _rb.linearVelocity.y);
+        _rb.linearVelocity = new Vector2(_player.MoveX * _player.RunSpeed, _rb.linearVelocity.y);
     }
 
     public override void Exit()
@@ -50,4 +53,3 @@ public class PlayerFallState : PlayerStateBase
         _ani.SetBool("IsFall", false);
     }
 }
-

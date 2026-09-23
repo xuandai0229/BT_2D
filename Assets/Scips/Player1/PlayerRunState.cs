@@ -1,14 +1,18 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-public class PlayerRunState : PlayerStateBase
+public class PlayerRunState : AgentStateBase
 {
-    public PlayerRunState(PlayerController controller)
-        : base(controller)
+    private readonly PlayerController _player;
+
+    public PlayerRunState(PlayerController player)
+        : base(player)
     {
+        _player = player;
     }
 
     public override void Enter()
     {
+        base.Enter();
         _ani.SetBool("IsRun", true);
     }
 
@@ -16,36 +20,42 @@ public class PlayerRunState : PlayerStateBase
     {
         base.Update();
 
-
-        if (_controller.IsGrounded() && _controller.ConsumeJumpPressed())
+        if (_player.IsGrounded() && _player.ConsumeJumpPressed())
         {
-            _stateMachine.ChangeState( _controller.JumpState );
+            _stateMachine.ChangeState(_player.JumpState);
             return;
         }
 
-        if (!_controller.IsGrounded())
+        if (_player.ConsumeAttackPressed())
         {
-            _stateMachine.ChangeState( _controller.FallState );
-
+            _stateMachine.ChangeState(_player.AttackState);
             return;
         }
 
-        if (!_controller.HasMoveInput)
+        if (!_player.IsGrounded())
         {
-            _stateMachine.ChangeState(_controller.IdleState);
-
+            _stateMachine.ChangeState(_player.FallState);
             return;
         }
-        _controller.SetFacingDirection( _controller.MoveX );
+
+        if (!_player.HasMoveInput)
+        {
+            _stateMachine.ChangeState(_player.IdleState);
+            return;
+        }
+
+        _player.SetFacingDirection(_player.MoveX);
     }
 
     public override void FixedUpdate()
     {
-        _rb.linearVelocity = new Vector2(_controller.MoveX * _controller.RunSpeed,_rb.linearVelocity.y);
+        base.FixedUpdate();
+        _rb.linearVelocity = new Vector2(_player.MoveX * _player.RunSpeed, _rb.linearVelocity.y);
     }
 
     public override void Exit()
     {
+        base.Exit();
         _ani.SetBool("IsRun", false);
     }
 }

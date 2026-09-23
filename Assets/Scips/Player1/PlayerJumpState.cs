@@ -1,47 +1,51 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-public class PlayerJumpState : PlayerStateBase
+public class PlayerJumpState : AgentStateBase
 {
-    public PlayerJumpState(PlayerController controller)
-        : base(controller)
+    private readonly PlayerController _player;
+
+    public PlayerJumpState(PlayerController player)
+        : base(player)
     {
+        _player = player;
     }
 
     public override void Enter()
     {
+        base.Enter();
+
         _ani.SetBool("IsRun", false);
-
         _ani.SetBool("IsFall", false);
-
         _ani.SetBool("IsJump", true);
 
-        _controller.ApplyJump();
+        _player.ApplyJump();
     }
 
     public override void Update()
     {
         base.Update();
 
-        if (_controller.HasMoveInput)
+        if (_player.HasMoveInput)
         {
-            _controller.SetFacingDirection(_controller.MoveX);
+            _player.SetFacingDirection(_player.MoveX);
         }
 
         if (_rb.linearVelocity.y <= 0f)
         {
-            _stateMachine.ChangeState( _controller.FallState);
-
+            _stateMachine.ChangeState(_player.FallState);
             return;
         }
     }
 
     public override void FixedUpdate()
     {
-        _rb.linearVelocity = new Vector2(_controller.MoveX * _controller.RunSpeed,_rb.linearVelocity.y);
+        base.FixedUpdate();
+        _rb.linearVelocity = new Vector2(_player.MoveX * _player.RunSpeed, _rb.linearVelocity.y);
     }
 
     public override void Exit()
     {
+        base.Exit();
         _ani.SetBool("IsJump", false);
     }
 }

@@ -1,0 +1,26 @@
+Attack Combo Fix Backup Manifest
+Created: 2026-09-23 18:57:55 +07:00
+
+Files to change:
+- Assets/Animations/player1/PlayerAnimaiton.controller
+  Reason: Remove the four stale Base Layer Any State transitions that target states nested inside Combo. The Attack2 entry transition in this invalid duplicate set has m_CanTransitionToSelf: 1 while IsAttack=true and AttackIndex=2, allowing Attack2 to restart continuously. The correct four transitions already exist within Combo with CanTransitionToSelf off.
+  State before fix: controller file is modified in the working tree; Base Layer m_AnyStateTransitions references four direct Attack1–Attack4 transitions to nested states. Duplicate Attack2 transition fileID 472832720213220031 has IsAttack=true, AttackIndex Equals 2, HasExitTime off, Duration 0, CanTransitionToSelf ON. Correct Combo transition fileID 610000000000000002 has CanTransitionToSelf OFF.
+  Backup: _codex_backup\attack_combo_fix\PlayerAnimaiton.controller.pre-fix
+  SHA256 before fix: A2C43690EA485AB7B1015C2317515544EF383A0866DDD50DEFD441C2A3AFC642
+
+Files to create:
+- docs/reports/ATTACK_COMBO_FIX_REPORT.md
+  Reason: Required fix and validation report.
+  State before work: file does not exist.
+
+No C# or .anim changes are planned because source inspection shows the event receiver, Attack2 event, and Attack2 clip timing are valid.
+
+Follow-up buffered-combo change
+Recorded before editing: 2026-09-23 19:16:26 +07:00
+
+File to change:
+- Assets/Scips/Player1/PlayerAttackState.cs
+  Reason: Keep one PlayerAttackState active through Attack1–Attack4, queueing one Attack press and advancing only on each animation event, as requested.
+  State before edit: Existing state exits to Idle/Run on each animation event; _comboAttackIndex advances only across separate state entries with a 1.5-second timeout.
+  Backup: _codex_backup/attack_combo_fix/PlayerAttackState.cs.pre-buffered-combo
+  SHA256 before edit: 34B081C9FFC8EB952064FDE7EE3D87AC40FE46643CA9CC09566DB0653A09087F

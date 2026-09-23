@@ -1,33 +1,45 @@
-﻿public class PlayerIdleState : PlayerStateBase
+using UnityEngine;
+
+public class PlayerIdleState : AgentStateBase
 {
-    public PlayerIdleState(PlayerController controller)
-        : base(controller)
+    private readonly PlayerController _player;
+
+    public PlayerIdleState(PlayerController player)
+        : base(player)
     {
+        _player = player;
     }
 
     public override void Enter()
     {
-     
+        base.Enter();
+
         _ani.SetBool("IsRun", false);
         _ani.SetBool("IsJump", false);
 
-        _controller.StopHorizontal();
+        _player.StopHorizontal();
     }
 
     public override void Update()
     {
+        base.Update();
 
-        if (_controller.IsGrounded() && _controller.ConsumeJumpPressed())
+        if (_player.IsGrounded() && _player.ConsumeJumpPressed())
         {
-            _stateMachine.ChangeState(_controller.JumpState);
+            _stateMachine.ChangeState(_player.JumpState);
 
             return;
         }
 
-
-        if (_controller.HasMoveInput)
+        if (_player.ConsumeAttackPressed())
         {
-            _stateMachine.ChangeState(_controller.RunState);
+            _stateMachine.ChangeState(_player.AttackState);
+            return;
+        }
+
+        if (_player.HasMoveInput)
+        {
+            _stateMachine.ChangeState(_player.RunState);
 
             return;
         }
