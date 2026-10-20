@@ -15,8 +15,8 @@ TagManager:
   - Pipe
   - Ground
   - GroundCheck
-  - 
-  - 
+  - Enemy
+  - Player
   - 
   - 
   - 
